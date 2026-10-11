@@ -24,6 +24,10 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.artspace.ui.theme.ArtSpaceTheme
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
+import androidx.compose.runtime.saveable.rememberSaveable
 
 data class Artwork(
     @DrawableRes val image: Int,
@@ -74,7 +78,7 @@ class MainActivity : ComponentActivity() {
 
 @Composable
 fun ArtSpaceScreen() {
-    val currentIndex = 0
+    var currentIndex by rememberSaveable { mutableStateOf(0) }
     val artwork = artworks[currentIndex]
 
     Column(
@@ -112,8 +116,22 @@ fun ArtSpaceScreen() {
         )
 
         DisplayController(
-            onPrevious = {},
-            onNext = {}
+            onPrevious = {
+                currentIndex =
+                    if (currentIndex == 0) {
+                        artworks.lastIndex
+                    } else {
+                        currentIndex - 1
+                    }
+            },
+            onNext = {
+                currentIndex =
+                    if (currentIndex == artworks.lastIndex) {
+                        0
+                    } else {
+                        currentIndex + 1
+                    }
+            }
         )
     }
 }
