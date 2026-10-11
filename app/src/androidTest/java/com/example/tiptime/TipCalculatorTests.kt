@@ -18,4 +18,29 @@ class TipCalculatorTests {
 
         assertEquals(expected, actual)
     }
+    @Test
+    fun calculateTip_roundsFractionUp() {
+        val expected = NumberFormat.getCurrencyInstance().format(2.0)
+
+        val actual = calculateTip(
+            amount = 11.0,
+            tipPercent = 15.0,
+            roundUp = true
+        )
+
+        assertEquals(expected, actual)
+    }
+
+    @Test
+    fun calculateTip_zeroAmountReturnsZero() {
+        val expected = NumberFormat.getCurrencyInstance().format(0.0)
+
+        val actual = calculateTip(
+            amount = 0.0,
+            tipPercent = 20.0,
+            roundUp = false
+        )
+
+        assertEquals(expected, actual)
+    }
 }
