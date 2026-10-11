@@ -51,6 +51,13 @@ import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.ui.focus.FocusDirection
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.foundation.layout.Row
+import androidx.compose.material3.Switch
+import kotlin.math.ceil
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.foundation.layout.imePadding
+import androidx.compose.runtime.saveable.rememberSaveable
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -70,18 +77,21 @@ class MainActivity : ComponentActivity() {
 
 @Composable
 fun TipTimeLayout() {
-    var amountInput by remember { mutableStateOf("") }
-    var tipInput by remember { mutableStateOf("") }
+    var amountInput by rememberSaveable { mutableStateOf("") }
+    var tipInput by rememberSaveable { mutableStateOf("") }
     val focusManager = LocalFocusManager.current
+    var roundUp by rememberSaveable { mutableStateOf(false) }
 
     val amount = amountInput.toDoubleOrNull() ?: 0.0
     val tipPercent = tipInput.toDoubleOrNull() ?: 0.0
-    val tip = calculateTip(amount, tipPercent)
+    val tip = calculateTip(amount, tipPercent, roundUp)
 
     Column(
         modifier = Modifier
             .fillMaxSize()
             .safeDrawingPadding()
+            .imePadding()
+            .verticalScroll(rememberScrollState())
             .padding(horizontal = 40.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center
@@ -128,6 +138,11 @@ fun TipTimeLayout() {
                 .fillMaxWidth()
                 .padding(bottom = 32.dp)
         )
+        RoundTheTipRow(
+            roundUp = roundUp,
+            onRoundUpChanged = { roundUp = it },
+            modifier = Modifier.padding(bottom = 32.dp)
+        )
 
         Text(
             text = stringResource(R.string.tip_amount, tip),
@@ -157,14 +172,44 @@ fun EditNumberField(
     )
 }
 
+@Composable
+fun RoundTheTipRow(
+    roundUp: Boolean,
+    onRoundUpChanged: (Boolean) -> Unit,
+    modifier: Modifier = Modifier
+) {
+    Row(
+        modifier = modifier
+            .fillMaxWidth()
+            .height(48.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Text(
+            text = stringResource(R.string.round_up_tip),
+            modifier = Modifier.weight(1f)
+        )
+
+        Switch(
+            checked = roundUp,
+            onCheckedChange = onRoundUpChanged
+        )
+    }
+}
+
 /**
  * Calculates the tip based on the user input and format the tip amount
  * according to the local currency.
  * Example would be "$10.00".
  */
-private fun calculateTip(amount: Double, tipPercent: Double = 15.0): String {
-    val tip = tipPercent / 100 * amount
-    return NumberFormat.getCurrencyInstance().format(tip)
+private fun calculateTip(
+    amount: Double,
+    tipPercent: Double = 15.0,
+    roundUp: Boolean
+): String {
+    val rawTip = amount * tipPercent / 100
+    val finalTip = if (roundUp) ceil(rawTip) else rawTip
+
+    return NumberFormat.getCurrencyInstance().format(finalTip)
 }
 
 @Preview(showBackground = true)
