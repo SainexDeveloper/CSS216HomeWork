@@ -58,6 +58,9 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.annotation.DrawableRes
+import androidx.compose.material3.Icon
+import androidx.compose.ui.res.painterResource
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -104,6 +107,7 @@ fun TipTimeLayout() {
         )
 
         EditNumberField(
+            leadingIcon = R.drawable.money,
             label = R.string.bill_amount,
             value = amountInput,
             onValueChange = { amountInput = it },
@@ -122,6 +126,7 @@ fun TipTimeLayout() {
         )
 
         EditNumberField(
+            leadingIcon = R.drawable.percent,
             label = R.string.how_was_the_service,
             value = tipInput,
             onValueChange = { tipInput = it },
@@ -155,6 +160,7 @@ fun TipTimeLayout() {
 @Composable
 fun EditNumberField(
     @StringRes label: Int,
+    @DrawableRes leadingIcon: Int,
     value: String,
     onValueChange: (String) -> Unit,
     keyboardOptions: KeyboardOptions,
@@ -165,6 +171,12 @@ fun EditNumberField(
         value = value,
         onValueChange = onValueChange,
         label = { Text(stringResource(label)) },
+        leadingIcon = {
+            Icon(
+                painter = painterResource(leadingIcon),
+                contentDescription = null
+            )
+        },
         singleLine = true,
         keyboardOptions = keyboardOptions,
         keyboardActions = keyboardActions,
