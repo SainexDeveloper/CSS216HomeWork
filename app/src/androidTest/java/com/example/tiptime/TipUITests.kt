@@ -46,4 +46,34 @@ class TipUITests {
             .onNodeWithText("Tip Amount: $expected")
             .assertExists()
     }
+
+    @Test
+    fun enablingRoundUpUpdatesDisplayedTip() {
+        composeTestRule
+            .onNodeWithText("Bill Amount")
+            .performTextInput("11")
+
+        composeTestRule
+            .onNodeWithText("Tip Percentage")
+            .performTextInput("15")
+
+        val beforeRounding =
+            NumberFormat.getCurrencyInstance().format(1.65)
+
+        composeTestRule
+            .onNodeWithText("Tip Amount: $beforeRounding")
+            .assertExists()
+
+        composeTestRule
+            .onNode(isToggleable())
+            .performScrollTo()
+            .performClick()
+
+        val afterRounding =
+            NumberFormat.getCurrencyInstance().format(2.0)
+
+        composeTestRule
+            .onNodeWithText("Tip Amount: $afterRounding")
+            .assertExists()
+    }
 }
