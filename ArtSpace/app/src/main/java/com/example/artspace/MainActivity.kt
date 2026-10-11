@@ -81,58 +81,119 @@ fun ArtSpaceScreen() {
     var currentIndex by rememberSaveable { mutableStateOf(0) }
     val artwork = artworks[currentIndex]
 
-    Column(
+    val onPrevious: () -> Unit = {
+        currentIndex =
+            if (currentIndex == 0) {
+                artworks.lastIndex
+            } else {
+                currentIndex - 1
+            }
+    }
+
+    val onNext: () -> Unit = {
+        currentIndex =
+            if (currentIndex == artworks.lastIndex) {
+                0
+            } else {
+                currentIndex + 1
+            }
+    }
+
+    BoxWithConstraints(
         modifier = Modifier
             .fillMaxSize()
             .safeDrawingPadding()
-            .verticalScroll(rememberScrollState())
-            .padding(24.dp),
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.spacedBy(24.dp)
+            .padding(24.dp)
     ) {
-        Text(
-            text = stringResource(R.string.gallery_title),
-            style = MaterialTheme.typography.headlineMedium
-        )
+        val useWideLayout =
+            maxWidth >= 600.dp && maxWidth > maxHeight
 
-        ArtworkWall(
-            artwork = artwork,
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(340.dp)
-        )
+        if (useWideLayout) {
+            val imageHeight = minOf(maxHeight, 480.dp)
 
-        ArtworkDescriptor(
-            artwork = artwork,
-            modifier = Modifier.fillMaxWidth()
-        )
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .verticalScroll(rememberScrollState()),
+                horizontalArrangement = Arrangement.spacedBy(32.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                ArtworkWall(
+                    artwork = artwork,
+                    modifier = Modifier
+                        .weight(1.2f)
+                        .height(imageHeight)
+                )
 
-        Text(
-            text = stringResource(
-                R.string.artwork_position,
-                currentIndex + 1,
-                artworks.size
-            )
-        )
+                Column(
+                    modifier = Modifier.weight(1f),
+                    verticalArrangement =
+                        Arrangement.spacedBy(24.dp)
+                ) {
+                    Text(
+                        text = stringResource(R.string.gallery_title),
+                        style = MaterialTheme.typography.headlineMedium
+                    )
 
-        DisplayController(
-            onPrevious = {
-                currentIndex =
-                    if (currentIndex == 0) {
-                        artworks.lastIndex
-                    } else {
-                        currentIndex - 1
-                    }
-            },
-            onNext = {
-                currentIndex =
-                    if (currentIndex == artworks.lastIndex) {
-                        0
-                    } else {
-                        currentIndex + 1
-                    }
+                    ArtworkDescriptor(
+                        artwork = artwork,
+                        modifier = Modifier.fillMaxWidth()
+                    )
+
+                    Text(
+                        text = stringResource(
+                            R.string.artwork_position,
+                            currentIndex + 1,
+                            artworks.size
+                        )
+                    )
+
+                    DisplayController(
+                        onPrevious = onPrevious,
+                        onNext = onNext
+                    )
+                }
             }
-        )
+        } else {
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .verticalScroll(rememberScrollState()),
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement =
+                    Arrangement.spacedBy(24.dp)
+            ) {
+                Text(
+                    text = stringResource(R.string.gallery_title),
+                    style = MaterialTheme.typography.headlineMedium
+                )
+
+                ArtworkWall(
+                    artwork = artwork,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(340.dp)
+                )
+
+                ArtworkDescriptor(
+                    artwork = artwork,
+                    modifier = Modifier.fillMaxWidth()
+                )
+
+                Text(
+                    text = stringResource(
+                        R.string.artwork_position,
+                        currentIndex + 1,
+                        artworks.size
+                    )
+                )
+
+                DisplayController(
+                    onPrevious = onPrevious,
+                    onNext = onNext
+                )
+            }
+        }
     }
 }
 
